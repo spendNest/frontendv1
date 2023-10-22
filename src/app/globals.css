@@ -80,7 +80,12 @@ main {
 .personal_savings_card {
   border-radius: 8px;
   border: 1px solid #2A0FB1;
-  background: var(--Light, #FEFEFE);
+  /* background: var(--Light, #FEFEFE); */
+}
+.public_savings_bg {
+  border-radius: 8px;
+  border: 1px solid #2A0FB1;
+  /* background: var(--Light, #FEFEFE); */
 }
 
 .savings_club {

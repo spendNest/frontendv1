@@ -1,13 +1,54 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import Auth from "@/app/auth/Auth";
 import { coins } from '@/utils';
 import Image from 'next/image';
-
+import childAbi from "@/app/auth/abi/child.json";
+import { toast } from 'react-toastify';
+import { ethers } from 'ethers'
 
 export const OwnAccountModal = ({ txnId, amount, setShowModal }) => {
   let [isOpen, setIsOpen,] = useState(true)
-  const { address } = Auth();
+  const { childAddress, provider } = Auth();
+  const [amountVal, setAmountVal] = useState();
+  const [sending, setSending] = useState(false)
+
+  const sendBetweenAcct = async (e) => {
+    if (amountVal === undefined) {
+      toast.error('Invalid amount');
+      return;
+    }
+    setSending(true);
+    try {
+      e.preventDefault();
+
+      const ChildContract = new ethers.Contract(
+        childAddress,
+        childAbi,
+        provider.getSigner()
+      );
+
+      const tx = await ChildContract.transferBetweenOwnAcct(Number(amountVal) * 1000000);
+
+      const txResponse = await tx.wait();
+      console.log(txResponse);
+      setSending(false)
+      setShowModal(false)
+      toast.success("Transaction successful")
+    } catch (error) {
+      console.log(error)
+      setSending(false)
+      setShowModal(false)
+      toast.error("Transaction failed")
+    }
+    // console.log(txResponse.error);
+  };
+
+  useEffect(() => {
+    if ((Object.keys(provider)).length > 0) { } else {
+      router.push('/');
+    }
+  }, [provider])
 
   return (
     <Transition
@@ -66,13 +107,13 @@ export const OwnAccountModal = ({ txnId, amount, setShowModal }) => {
                   </div>
                 </Dialog.Title>
                 <section className='mt-20'>
-                  <form className='relative'>
+                  <div className='relative'>
                     <div className="flex items-center justify-between border-[2px] z-10 rounded-lg py-[14px] px-[15px] border-black relative">
                       <div className="">
                         <p className="font-bold text-[14px] leading-6 head2 tracking-[10%] ">From</p>
                         <div className="flex items-center gap-2 h-[59px] mt-4">
                           <p className="head2 text-[24px] leading-[32px] tracking-[1.3%] font-normal ">$</p>
-                          <input type="text" placeholder='0.00' className='text-[40px] head2 leading-[60px] text-black  w-[200px] outline-none' />
+                          <input type="text" placeholder='0.00' onChange={(e) => setAmountVal(e.target.value)} className='text-[40px] head2 leading-[60px] text-black  w-[200px] outline-none' />
                         </div>
                       </div>
                       <div className="">
@@ -96,11 +137,11 @@ export const OwnAccountModal = ({ txnId, amount, setShowModal }) => {
                       </div>
                     </div>
                     <div className="flex justify-center my-10">
-                      <button onClick={() => setModal()} className='px-4 grotesk_font h-fit w-full py-3 rounded-xl block text-center text-[white] bg-[#0F4880]'>
-                        Send
+                      <button onClick={sendBetweenAcct} disabled={sending} className='px-4 grotesk_font h-fit w-full py-3 rounded-xl block text-center text-[white] bg-[#0F4880]'>
+                        {sending ? "Sending" : "Send"}
                       </button>
                     </div>
-                  </form>
+                  </div>
                 </section>
 
 

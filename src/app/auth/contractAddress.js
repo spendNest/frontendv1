@@ -1,2 +1,2 @@
-export const factoryAddress ="0xa8d1B6fAb28a0B653BeFBDd3B1f8Fe6ea36f78f5";
-export const tokenAddress ="0x9E36522fa421fF0950a59A45741Bde0F18EF2B1D"
+export const factoryAddress ="0x99f6FF3107e3DF02055B618e7Bc59C932b04c302";
+export const tokenAddress ="0xDB3cB4f2688daAB3BFf59C24cC42D4B6285828e9"

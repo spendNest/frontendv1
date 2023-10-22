@@ -3,7 +3,6 @@ import { useRouter } from 'next/navigation'
 import { PiArrowLeftBold } from 'react-icons/pi'
 
 export default function FundHeader({ title, type }) {
-  console.log(type)
   const router = useRouter()
   return (
     <div>

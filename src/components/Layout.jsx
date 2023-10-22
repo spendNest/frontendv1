@@ -6,10 +6,10 @@ import Auth from '@/app/auth/Auth'
 import { useRouter } from 'next/navigation'
 
 export default function Layout({ children }) {
-  const { isConnected } = Auth();
+  const { isConnected, provider } = Auth();
   const router = useRouter()
   useEffect(() => {
-    if (!isConnected) {
+    if (!isConnected || Object.keys(provider).length === 0) {
       router.push('/');
     }
   })

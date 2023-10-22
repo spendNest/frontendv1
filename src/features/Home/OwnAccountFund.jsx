@@ -3,6 +3,7 @@ import { OwnAccountModal } from '@/components/OwnAccountModal'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { PiArrowLeftBold } from 'react-icons/pi'
+import { toast } from 'react-toastify'
 
 const OwnAccountFund = () => {
   const router = useRouter()

@@ -1,13 +1,34 @@
+'use client'
 import Layout from '@/components/Layout'
 import Image from 'next/image'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { PiArrowLeftBold } from 'react-icons/pi'
 import { LiaGreaterThanSolid } from 'react-icons/lia'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Auth from '@/app/auth/Auth'
+import { ethers } from 'ethers'
+import childAbi from "@/app/auth/abi/child.json";
+import { formatUSDT } from '@/utils'
 
 export default function PersonalSavings() {
   const router = useRouter()
+  const [pSavings, setPSavings] = useState()
+  const { childAddress, provider } = Auth()
+
+  useEffect(() => {
+    if ((Object.keys(provider)).length > 0) {
+      const ChildContract = new ethers.Contract(childAddress, childAbi, provider?.getSigner());
+      const personalSavings = async () => {
+        const tx = await ChildContract.myPersonalSavings();
+        setPSavings(tx)
+        console.log(tx)
+      }
+      personalSavings();
+    } else {
+      router.push('/');
+    }
+  }, [])
 
   return (
     <Layout>
@@ -33,7 +54,7 @@ export default function PersonalSavings() {
               />
             </div>
             <p className='text-[#2A0FB1] text-lg font-bold mb-2'>Personal Savings</p>
-            <span className='text-[#2A0FB1] text-xl font-bold'>$65.80</span>
+            <span className='text-[#2A0FB1] text-xl font-bold'>${pSavings !== "" && formatUSDT(pSavings)}</span>
           </div>
           <div className="personal_savings_card p-6 flex flex-col justify-between w-full md:w-[50%]">
             <span className='text-base tracking-[0.085px] leading-5'>Flexible savings for emergencies, Free transfers, withdrawals.</span>
@@ -60,7 +81,7 @@ export default function PersonalSavings() {
               <span className='text-[17px]'>Withdraw</span>
               <span className='text-[10px] mono_font'>To Basic Account</span>
             </div>
-            <Link href={`/savings/personal/funds?type=add`} className='border bg-[#2A0FB1] border-[#2A0FB1] rounded-full items-center flex justify-center w-10 h-10'>
+            <Link href={`/savings/personal/funds?type=withdraw`} className='border bg-[#2A0FB1] border-[#2A0FB1] rounded-full items-center flex justify-center w-10 h-10'>
               <LiaGreaterThanSolid
                 size={24}
                 className="font-bold text-[#fefefe] cursor-pointer"

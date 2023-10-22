@@ -8,6 +8,7 @@ function AppProvider({ children }) {
   const [wallet, setWallet] = useState({})
   const [provider, setProvider] = useState({})
   const [errMessage, setErrMessage] = useState('')
+  const [sidebar, setSideBar] = useState('')
   const [address, setAddress] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [isConnected, setIsConnected] = useState(false)
@@ -15,7 +16,7 @@ function AppProvider({ children }) {
   const [childAddress, setChildAddress] = useState("");
 
   return (
-    <AppContext.Provider value={{ wallet, setWallet, setProvider, provider, errMessage, setErrMessage, address, setAddress, isLoading, setIsLoading, isConnected, setIsConnected, factoryContract, setFactoryContract, childAddress, setChildAddress }}>{children}</AppContext.Provider>
+    <AppContext.Provider value={{ wallet, setWallet, setProvider, provider, errMessage, setErrMessage, address, setAddress, isLoading, setIsLoading, isConnected, setIsConnected, factoryContract, setFactoryContract, childAddress, setChildAddress, sidebar, setSideBar }}>{children}</AppContext.Provider>
   )
 }
 

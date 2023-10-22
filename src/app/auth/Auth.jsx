@@ -13,6 +13,7 @@ import childAbi from "./abi/child.json";
 import axios from 'axios';
 import { ethers } from "ethers";
 import { factoryAddress } from "./contractAddress";
+import { useRouter } from "next/navigation";
 
 export default function Auth() {
   const {
@@ -43,10 +44,11 @@ export default function Auth() {
     apiKey,
   });
 
+  const router = useRouter();
+
   const createWallet = async () => {
     try {
       const localStorageAddress = window.localStorage.getItem("walletAddress");
-      console.log(localStorageAddress)
       if (localStorageAddress) {
         console.log("clicked");
         setIsLoading(true);
@@ -54,7 +56,6 @@ export default function Auth() {
         setAddress(instance.getAddress());
         const instanceProvider = new ComethProvider(instance);
         setProvider(instanceProvider);
-        console.log("instance", instanceProvider);
 
         const FactoryContract = new ethers.Contract(
           factoryAddress,
@@ -65,11 +66,6 @@ export default function Auth() {
         setFactoryContract(FactoryContract);
         const tx = await FactoryContract._returnAddress(instance.getAddress());
         setChildAddress(tx);
-        console.log("tx", tx);
-
-        // const txResponse = await tx.wait();
-        // console.log('response',txResponse);
-        // setProvider(instanceProvider);
       } else {
         setIsLoading(true);
         await instance.connect();
@@ -89,19 +85,24 @@ export default function Auth() {
         // setTransactionSended(tx);
         const txResponse = await tx.wait();
 
-        console.log("response", txResponse);
-        setProvider(instanceProvider);
-        console.log("instance", instanceProvider);
+        if (Object.values(instanceProvider).length > 0) {
+          setProvider(instanceProvider);
+        } else { router.push("/") }
 
         const tx2 = await FactoryContract._returnAddress(instance.getAddress());
 
-        await axios.post("https://api.connect.cometh.io/sponsored-address", {
-          "Content-Type": "application/json",
-          apisecret: "b51787f8-2247-4ae2-88a6-d8cdc1bc38e6",
-        }, { "targetAddress": tx2 });
-
+        await fetch("https://api.connect.cometh.io/sponsored-address", {
+          method: "post",
+          headers: {
+            "Content-Type": "application/json",
+            "apisecret": "b51787f8-2247-4ae2-88a6-d8cdc1bc38e6",
+          },
+          body: JSON.stringify({
+            targetAddress: tx2,
+          }),
+        })
+        setChildAddress(tx);
       }
-      console.log("ins", instance);
       setWallet(instance);
       setIsConnected(true);
       setIsLoading(false);

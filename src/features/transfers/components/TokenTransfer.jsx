@@ -1,33 +1,48 @@
 import Auth from "@/app/auth/Auth";
 import { useState } from "react"
 import childAbi from "@/app/auth/abi/child.json";
+import { ethers } from "ethers";
+import { toast } from "react-toastify";
 
 
 export default function TokenTransfer({ btnText, type }) {
   const [amountVal, setAmountVal] = useState();
   const [sendeAddr, setSendeAddress] = useState("");
 
-  const {childAddress, provider} = Auth()
+  const { childAddress, provider } = Auth()
 
-  const fundWallet = async () => {
-    const ChildContract = new ethers.Contract(
-      childAddress,
-      childAbi,
-      provider.getSigner()
-    );
-  
+  const fundWallet = async (e) => {
+    console.log(amountVal)
+    if ((Number(amountVal) < 1) || amountVal === undefined) {
+      toast.error("Invalid Amount")
+      return;
+    }
+    try {
+      e.preventDefault();
 
-    const tx = await ChildContract.transferFund(sendeAddr, Number(amountVal))
+      const ChildContract = new ethers.Contract(
+        childAddress,
+        childAbi,
+        provider.getSigner()
+      );
 
-    const txResponse = await tx.wait();
-    console.log(txResponse);
-    // console.log(txResponse.error);
+
+      const tx = await ChildContract.transferFund(sendeAddr, Number(amountVal))
+
+      const txResponse = await tx.wait();
+      console.log(txResponse);
+      // console.log(txResponse.error);
+      toast.error("Transaction successful")
+
+    } catch (error) {
+      toast.error("Transaction failed")
+    }
   }
 
   return (
     <div>
-      <form>
-        <div className="block md:flex md:gap-10">
+      <div>
+        <div className="block md:flex gap-3  md:gap-10">
           <div className="w-full md:w-[50%]">
             <label htmlFor="" className="font-normal text-[17px] leading-5 tracking-[0.5%] ">{type === "home" ? "Amount to Withdraw" : "Amount to transfer"}</label>
             <div className="flex items-center border-[1px] border-[#696969] rounded-lg pl-[10px] w-fit gap-4 h-[72px] mt-2">
@@ -45,11 +60,11 @@ export default function TokenTransfer({ btnText, type }) {
         </div>
         {/* button */}
         <div className="flex justify-center">
-          <button onClick={()=>fundWallet()} className="w-[360px] h-[58px] rounded-lg bg-[#0F4880] text-[#FEFEFE] text-[17px] leading-[25.5px] tracking-[0.5%] mt-[80px] ">
+          <button onClick={fundWallet} className="w-[360px] h-[58px] rounded-lg bg-[#0F4880] text-[#FEFEFE] text-[17px] leading-[25.5px] tracking-[0.5%] mt-[80px] ">
             {btnText}
           </button>
         </div>
-      </form>
+      </div>
     </div>
   )
 }

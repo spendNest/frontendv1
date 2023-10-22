@@ -5,7 +5,7 @@ import { coins } from '@/utils';
 import Image from 'next/image';
 
 
-export const Modal = ({ txnId, amount, setShowModal, Fund }) => {
+export const Modal = ({ sending, txnId, amount, setShowModal, Fund }) => {
   let [isOpen, setIsOpen,] = useState(true)
   const { childAddress } = Auth();
 
@@ -18,7 +18,7 @@ export const Modal = ({ txnId, amount, setShowModal, Fund }) => {
       <Dialog
         as="div"
         className="relative z-10"
-        onClose={() => setShowModal(false)}
+        onClose={() => (null)}
       >
         <Transition.Child
           as={Fragment}
@@ -83,9 +83,15 @@ export const Modal = ({ txnId, amount, setShowModal, Fund }) => {
                   </div>
                 </div>
 
-                <button onClick={() => {Fund()}} className='px-4 grotesk_font h-fit w-full py-3 rounded-xl block text-center text-[white] bg-[#0F4880]'>
-                  Fund Account
-                </button>
+                <div className='flex gap-2'>
+                  <button onClick={() => setShowModal(false)} className='px-4 grotesk_font h-fit w-full py-3 rounded-xl block text-center text-[white] bg-[red]'>
+                    Cancel
+                  </button>
+                  <button onClick={() => { Fund() }} disabled={sending} className='px-4 grotesk_font h-fit w-full py-3 rounded-xl block text-center text-[white] bg-[#0F4880]'>
+                    {!sending ? "Fund Account" : "Funding"}
+                  </button>
+                </div>
+
               </Dialog.Panel>
             </Transition.Child>
           </div>

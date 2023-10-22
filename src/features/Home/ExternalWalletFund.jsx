@@ -8,13 +8,14 @@ import { ethers } from 'ethers'
 import Auth from '@/app/auth/Auth'
 import childAbi from "@/app/auth/abi/child.json";
 import ERC20ABI from '@/app/auth/abi/Erc20ABI.json'
-import {tokenAddress} from '@/app/auth/contractAddress'
+import { tokenAddress } from '@/app/auth/contractAddress'
 
 const ExternalWalletFund = () => {
   const router = useRouter()
   const [showModal, setShowModal] = useState()
-  const [amountVal, setAmountVal] = useState("")
   const { childAddress, provider, address } = Auth();
+  const [amountVal, setAmountVal] = useState()
+  const [sending, setSending] = useState(false)
 
   const setModal = () => {
     if (Number(amountVal) < 0 || amountVal === undefined || amountVal === "") {
@@ -24,30 +25,37 @@ const ExternalWalletFund = () => {
     setShowModal(true)
   }
 
-  console.log('adchildAddressdr', childAddress)
   //fund external wallet
   const fundWallet = async () => {
-    const ChildContract = new ethers.Contract(
-      childAddress,
-      childAbi,
-      provider.getSigner()
-    );
-    const token = new ethers.Contract(
-      tokenAddress,
-      ERC20ABI,
-      provider.getSigner()
-    );
+    try {
+      setSending(true)
+      const ChildContract = new ethers.Contract(
+        childAddress,
+        childAbi,
+        provider.getSigner()
+      );
+      const token = new ethers.Contract(
+        tokenAddress,
+        ERC20ABI,
+        provider.getSigner()
+      );
 
-    const approve = await token.approve(childAddress, Number(amountVal * 1000000))
+      const approve = await token.approve(childAddress, Number(amountVal * 1000000))
 
-    const approveRes = await approve.wait();
-    console.log('approve', approveRes);
+      const app = await approve.wait();
+      console.log(app)
+      const tx = await ChildContract.depositFund(Number(amountVal))
 
-    const tx = await ChildContract.depositFund(Number(amountVal))
+      const txResponse = await tx.wait();
+      toast.success("transaction successful")
+      setShowModal(false)
+      // console.log(txResponse.error);
 
-    const txResponse = await tx.wait();
-    console.log(txResponse);
-    // console.log(txResponse.error);
+    } catch (error) {
+      setSending(false)
+      toast.error(error.revert ? error.revert : "transaction failed")
+      console.log(error)
+    }
   }
 
   return (
@@ -79,7 +87,7 @@ const ExternalWalletFund = () => {
             </div>
 
             <button onClick={() => setModal()} className='px-4 h-fit py-2 rounded-xl flex items-center gap-1 text-[white] bg-[#0F4880]'>
-              Send
+              {sending ? "Sending" : "Send"}
             </button>
 
           </div>
@@ -88,7 +96,7 @@ const ExternalWalletFund = () => {
 
       {/* Modal */}
       {showModal &&
-        <Modal amount={amountVal} setShowModal={setShowModal} Fund={fundWallet}  />
+        <Modal sending={sending} amount={amountVal} setShowModal={setShowModal} Fund={fundWallet} />
       }
     </Layout>
   )

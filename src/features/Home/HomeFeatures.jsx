@@ -7,25 +7,23 @@ import Image from 'next/image'
 import Auth from '@/app/auth/Auth'
 import childAbi from '@/app/auth/abi/child.json'
 import { ethers } from 'ethers'
+import { useRouter } from 'next/navigation'
 
 export default function HomeFeatures() {
   const { childAddress, provider, createWallet, isLoading, isConnected } = Auth();
   const [accountDetails, setAccountDetails] = useState([])
-  console.log('is', childAddress)
-  const contract = new ethers.Contract(childAddress, childAbi, provider?.getSigner());
-  const readAccountDetails = async () => {
-    const tx = await contract.viewAccount();
-    setAccountDetails(tx);
-  }
-
-  // console.log('pro', provider.ComethProvider)
+  const router = useRouter()
 
   useEffect(() => {
-    if (Object.values(provider).length > 0 || provider !== undefined || provider !== null) {
-
+    if ((Object.keys(provider)).length > 0) {
+      const contract = new ethers.Contract(childAddress, childAbi, provider?.getSigner());
+      const readAccountDetails = async () => {
+        const tx = await contract.viewAccount();
+        setAccountDetails(tx);
+      }
       readAccountDetails();
-
-      // return readAccountDetails;
+    } else {
+      router.push('/');
     }
   }, [provider])
 
@@ -156,7 +154,7 @@ export default function HomeFeatures() {
                   <div className='border flex px-4 rounded-md h-[130px] w-full'>
                     <div className='py-4 w-[80%] flex flex-col justify-between'>
                       <span>Overdraft your account</span>
-                      <Link href={`/app?source=`} className="w-fit pt-3 block">
+                      <Link href={'services//overdraft'} className="w-fit pt-3 block">
                         <button className='py-1 px-4 rounded-lg text-[white] text-[17px] bg-[#0F4880]'>Start Now</button>
                       </Link>
                     </div>

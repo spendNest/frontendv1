@@ -8,6 +8,7 @@ import Link from "next/link";
 
 export default function FundTransfer() {
   const { address } = Auth();
+  
 
   const copyToClipboard = () => {
     let copyText = address;
